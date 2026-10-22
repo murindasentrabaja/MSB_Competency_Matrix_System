@@ -476,6 +476,29 @@ td.idn .badge{margin-top:5px}
 .sg-pop .it b{font-size:12.5px;font-weight:700;color:var(--ink)}
 .sg-pop .it span{font-size:11px;color:var(--ink-3)}
 
+/* --- akun: ganti password & kelola pengguna --- */
+.modal.md{max-width:780px}
+.us-wrap{border:1px solid var(--line);border-radius:11px;overflow:auto;max-height:250px}
+.us-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.us-tbl th{position:sticky;top:0;background:#f4f7fc;text-align:left;font-size:10.5px;font-weight:800;letter-spacing:.6px;color:var(--ink-3);padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.us-tbl td{padding:8px 10px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+.us-tbl tr:last-child td{border-bottom:0}
+.us-tbl tr.on td{background:#eef3fb}
+.us-tbl tr.off td{color:var(--ink-3)}
+.us-tbl .un{font-weight:700;color:var(--ink);white-space:nowrap}
+.us-tag{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:#e1eaf9;color:var(--navy);margin-left:4px}
+.us-tag.off{background:#eef1f5;color:var(--ink-3);margin-left:0}
+.us-link{border:0;background:none;color:var(--navy-3);font-weight:700;font-size:12px;cursor:pointer;padding:4px 8px;border-radius:6px}
+.us-link:hover{background:#eef3fb}
+.us-empty{padding:20px;text-align:center;color:var(--ink-3);font-size:12.5px}
+.us-form{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.us-form h4{margin:0 0 12px;font-size:13px;font-weight:800;color:var(--ink)}
+.btn2.danger{color:var(--bad);border-color:#f1c4c4}
+.btn2.danger:hover{background:#fdf1f1}
+.btn2.left{margin-right:auto}
+.modal footer{flex-wrap:wrap}
+@media(max-width:640px){.us-form .grid2{grid-template-columns:1fr}}
+
 /* --- cetak: satu lembar A4 per proses --- */
 @media print{
   #sheets{display:block}
@@ -508,6 +531,8 @@ td.idn .badge{margin-top:5px}
   <div class="spacer"></div>
   <span class="chip userchip" id="userChip" style="display:none"><span class="ini" id="uIni">?</span><span class="un" id="uName"></span><span class="ur" id="uRole"></span></span>
   <button class="btn" id="btnLogin" title="Masuk untuk mengedit data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2.2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> Masuk</button>
+  <button class="btn ghost" id="btnPw" style="display:none" title="Ganti password akun Anda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2 20 3"/><path d="M16 7l3 3"/></svg> Password</button>
+  <button class="btn ghost" id="btnUsers" style="display:none" title="Tambah pengguna & reset password (khusus Admin)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/></svg> Pengguna</button>
   <button class="btn ghost" id="btnLogout" style="display:none" title="Keluar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg> Keluar</button>
   <button class="btn ghost" id="btnReload" title="Ambil ulang data dari Spreadsheet">⟳ Muat Ulang</button>
   <button class="btn" id="btnAdd" title="Tambah karyawan">＋ Karyawan</button>
@@ -629,10 +654,10 @@ td.idn .badge{margin-top:5px}
       <button class="x" data-close="ovLogin">✕</button>
     </header>
     <div class="body">
-      <p class="lg-note">Matriks bisa dilihat siapa saja. Mengubah level skill, data karyawan, dan penanda tangan hanya untuk pengguna yang terdaftar di sheet LOGIN.</p>
+      <p class="lg-note">Matriks bisa dilihat siapa saja. Mengubah level skill, data karyawan, dan penanda tangan hanya untuk pengguna yang terdaftar. Lupa password? Minta Admin mereset lewat tombol Pengguna.</p>
       <div class="mf" style="margin-bottom:13px">
-        <label>Username</label>
-        <input type="text" id="lgUser" autocomplete="username" autocapitalize="none" spellcheck="false">
+        <label>Pengguna</label>
+        <select id="lgUser"><option value="">Memuat daftar pengguna…</option></select>
       </div>
       <div class="mf">
         <label>Password</label>
@@ -650,6 +675,96 @@ td.idn .badge{margin-top:5px}
   </div>
 </div>
 
+<!-- ============================ MODAL GANTI PASSWORD ============================ -->
+<div class="overlay" id="ovPw">
+  <div class="modal sm">
+    <header>
+      <h3>Ganti password</h3>
+      <button class="x" data-close="ovPw">✕</button>
+    </header>
+    <div class="body">
+      <p class="lg-note" id="pwWho"></p>
+      <div class="mf" style="margin-bottom:13px">
+        <label>Password lama</label>
+        <div class="pw-wrap">
+          <input type="password" id="pwOld" autocomplete="current-password">
+          <button type="button" data-pwtoggle="pwOld">Tampilkan</button>
+        </div>
+      </div>
+      <div class="mf" style="margin-bottom:13px">
+        <label>Password baru</label>
+        <div class="pw-wrap">
+          <input type="password" id="pwNew" autocomplete="new-password">
+          <button type="button" data-pwtoggle="pwNew">Tampilkan</button>
+        </div>
+        <div class="hint">Minimal 6 karakter.</div>
+      </div>
+      <div class="mf">
+        <label>Ulangi password baru</label>
+        <div class="pw-wrap">
+          <input type="password" id="pwNew2" autocomplete="new-password">
+          <button type="button" data-pwtoggle="pwNew2">Tampilkan</button>
+        </div>
+      </div>
+      <div class="lg-err" id="pwErr" role="alert"></div>
+    </div>
+    <footer>
+      <button class="btn2" data-close="ovPw">Batal</button>
+      <button class="btn2 save" id="btnDoPw">Simpan password</button>
+    </footer>
+  </div>
+</div>
+
+<!-- ============================ MODAL KELOLA PENGGUNA ============================ -->
+<div class="overlay" id="ovUsers">
+  <div class="modal md">
+    <header>
+      <h3>Kelola pengguna</h3>
+      <button class="x" data-close="ovUsers">✕</button>
+    </header>
+    <div class="body">
+      <div class="us-wrap" id="usList"></div>
+      <div class="us-form">
+        <h4 id="usFormTitle">Tambah pengguna</h4>
+        <div class="grid2">
+          <div class="mf">
+            <label>Username</label>
+            <input type="text" id="usName" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="mis. budi.s">
+          </div>
+          <div class="mf">
+            <label>Nama lengkap</label>
+            <input type="text" id="usNama" autocomplete="off" placeholder="Nama yang tampil di aplikasi">
+          </div>
+          <div class="mf">
+            <label>Role</label>
+            <select id="usRole"><option value="Editor">Editor</option><option value="Admin">Admin</option></select>
+          </div>
+          <div class="mf">
+            <label>Status</label>
+            <select id="usStatus"><option>Aktif</option><option>Non Aktif</option></select>
+          </div>
+          <div class="mf full">
+            <label id="usPwLabel">Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="usPass" autocomplete="new-password">
+              <button type="button" data-pwtoggle="usPass">Tampilkan</button>
+            </div>
+            <div class="hint" id="usPwHint"></div>
+          </div>
+        </div>
+        <div class="hint">Admin: semua hak, termasuk kelola pengguna. Editor: ubah level skill dan data karyawan.</div>
+        <div class="lg-err" id="usErr" role="alert"></div>
+      </div>
+    </div>
+    <footer>
+      <button class="btn2 danger left" id="btnUsDel" style="display:none">Hapus pengguna</button>
+      <button class="btn2" id="btnUsReset" style="display:none">Batal ubah</button>
+      <button class="btn2" data-close="ovUsers">Tutup</button>
+      <button class="btn2 save" id="btnUsSave">Tambah pengguna</button>
+    </footer>
+  </div>
+</div>
+
 <input type="file" id="photoInput" accept="image/*" style="display:none">
 <div class="toast" id="toast"></div>
 
@@ -660,7 +775,7 @@ const SEED = {"proses": [{"kode": "P01", "nama": "SAW Advance", "section": "Prod
    COMPETENCY MATRIX SYSTEM — FRONT-END (single file)
    GANTI BARIS DI BAWAH dengan URL Web App hasil deploy Code.gs
    ========================================================================== */
-const GAS_URL = "https://script.google.com/macros/s/AKfycb.../exec";   // <-- URL deploy Apps Script
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwf6JsgXf4UuhBkzMqS7xvFu51_biOvgrQIGeFLyV3AO8iVLT6NGHhxJ1QjiXOebzCi/exec";   // <-- URL deploy Apps Script
 const ALL = "*";                 // nilai pilihan "Semua Proses / Pekerjaan"
 
 /* ------------------------------------------------------------------ konstanta */
@@ -677,7 +792,7 @@ const APPROVAL_ROLES = [["Prepared", "PREPARED"], ["Checked", "CHECKED"], ["Appr
 
 /* ---------------------------------------------------------------------- state */
 const state = {
-  proses: [], skills: {}, karyawan: [], nilai: {}, setting: {}, approval: {}, master: [],
+  proses: [], skills: {}, karyawan: [], nilai: {}, setting: {}, approval: {}, master: [], masterErr: "",
   kode: "", section: "", jabatan: "", edit: false, online: false, loading: false, hideEmpty: true
 };
 
@@ -791,6 +906,9 @@ function applyAuthUI() {
   $("btnLogin").style.display = (!u && GAS_URL) ? "" : "none";
   $("userChip").style.display = u ? "" : "none";
   $("btnLogout").style.display = (u && GAS_URL) ? "" : "none";
+  $("btnPw").style.display = (u && GAS_URL) ? "" : "none";
+  $("btnUsers").style.display = (u && GAS_URL && isAdmin()) ? "" : "none";
+  if (!u) { $("ovPw").classList.remove("show"); $("ovUsers").classList.remove("show"); }
   if (u) {
     const nm = u.nama || u.username || "";
     $("uName").textContent = nm;
@@ -799,11 +917,50 @@ function applyAuthUI() {
   }
   $("chkEdit").closest(".switch").title = u ? "Aktifkan untuk mengubah data" : "Perlu login untuk mengedit";
 }
+/* daftar pengguna untuk dropdown login (hanya username & nama aktif, diambil tanpa login) */
+const LASTUSER_KEY = "CMS_LASTUSER";
+let loginUsers = null, loginUsersReq = null;
+function lastLoginUser() { try { return localStorage.getItem(LASTUSER_KEY) || ""; } catch (e) { return ""; } }
+function renderLoginUsers(status) {
+  const sel = $("lgUser"), want = sel.value || lastLoginUser(), list = loginUsers || [];
+  sel.innerHTML = "";
+  const ph = el("option", "", list.length ? "— Pilih pengguna —"
+    : status === "err" ? "Daftar pengguna gagal dimuat"
+    : status === "ok" ? "Belum ada pengguna aktif" : "Memuat daftar pengguna…");
+  ph.value = "";
+  sel.appendChild(ph);
+  list.forEach(u => {
+    const o = el("option", "", u.nama && u.nama !== u.username ? u.nama + " (" + u.username + ")" : u.username);
+    o.value = u.username;
+    sel.appendChild(o);
+  });
+  if (want && list.some(u => u.username === want)) sel.value = want;
+}
+function loadLoginUsers(force) {
+  if (!GAS_URL) return Promise.resolve();
+  if (loginUsers && !force) return Promise.resolve();
+  if (loginUsersReq) return loginUsersReq;
+  loginUsersReq = jsonp("loginUsers").then(res => {
+    if (!res || !res.ok) {
+      const m = (res && res.error) || "Respon kosong";
+      throw new Error(/tidak dikenal/i.test(m)
+        ? "Code.gs belum mendukung dropdown login. Tempel Code.gs terbaru lalu deploy ulang (Deploy → Manage deployments → Edit → New version)."
+        : m);
+    }
+    loginUsers = (res.data && res.data.users) || [];
+    renderLoginUsers("ok");
+  }).catch(err => {
+    if (!loginUsers) { renderLoginUsers("err"); $("lgErr").textContent = err.message; }
+  }).finally(() => { loginUsersReq = null; });
+  return loginUsersReq;
+}
 function openLogin(cb) {
   afterLogin = cb || null;
   $("lgErr").textContent = "";
   $("lgPass").value = "";
+  renderLoginUsers();
   $("ovLogin").classList.add("show");
+  loadLoginUsers(true);                               // segarkan daftar (user baru / non aktif)
   setTimeout(() => { ($("lgUser").value ? $("lgPass") : $("lgUser")).focus(); }, 60);
 }
 function closeLogin() { $("ovLogin").classList.remove("show"); afterLogin = null; }
@@ -811,12 +968,14 @@ function requireLogin(cb) { if (isAuthed()) cb(); else openLogin(cb); }
 
 async function doLogin() {
   const u = $("lgUser").value.trim(), p = $("lgPass").value;
-  if (!u || !p) { $("lgErr").textContent = "Isi username dan password."; return; }
+  if (!u) { $("lgErr").textContent = "Pilih pengguna terlebih dahulu."; return; }
+  if (!p) { $("lgErr").textContent = "Isi password."; $("lgPass").focus(); return; }
   const btn = $("btnDoLogin");
   btn.disabled = true; btn.textContent = "Memeriksa…"; $("lgErr").textContent = "";
   try {
     const res = await api("login", { username: u, password: p });
     saveSession({ token: res.data.token, user: res.data.user, t: Date.now() });
+    try { localStorage.setItem(LASTUSER_KEY, res.data.user.username || u); } catch (e) {}
     const cb = afterLogin;
     $("ovLogin").classList.remove("show"); afterLogin = null;
     applyAuthUI();
@@ -853,9 +1012,23 @@ async function verifySession() {
     loadMaster();
   } catch (e) { /* api() sudah menangani sesi berakhir */ }
 }
-async function loadMaster() {
+async function loadMaster(showToast) {
   if (!isAuthed()) return;
-  try { const r = await api("getMaster"); state.master = (r && r.data) || []; } catch (e) { /* saran opsional */ }
+  try {
+    const r = await api("getMaster");
+    state.master = (r && r.data) || [];
+    state.masterErr = "";
+    if (showToast) toast("Saran Master dimuat: " + state.master.length + " orang", "ok");
+  } catch (e) {
+    /* saran bersifat opsional: pengisian manual tetap jalan, tapi alasan gagalnya ditampilkan di form karyawan */
+    state.masterErr = e.message;
+    if (showToast && e.code !== "AUTH") toast("Saran Master tidak termuat: " + e.message, "err");
+  }
+}
+function masterHint() {
+  if (state.master.length) return "Ketik NIK atau nama untuk melihat saran dari sheet Master. Data di luar daftar tetap boleh diisi.";
+  if (state.masterErr) return "Saran Master belum termuat (" + state.masterErr + "). Ketik bebas tetap bisa.";
+  return "Ketik bebas. Saran dari sheet Master akan muncul setelah data Master termuat.";
 }
 function setEdit(on, silent) {
   state.edit = !!on;
@@ -1026,10 +1199,18 @@ function uniq(list) {
   list.forEach(v => { v = String(v == null ? "" : v).trim(); if (!v) return; const k = v.toLowerCase(); if (!seen.has(k)) { seen.add(k); out.push(v); } });
   return out;
 }
-function personItems(by) {
-  return state.master.map(m => by === "nik"
-    ? { value: m.nik, label: m.nik, sub: m.nama + (m.jabatan ? " · " + m.jabatan : ""), data: m }
-    : { value: m.nama, label: m.nama, sub: m.nik + (m.jabatan ? " · " + m.jabatan : ""), data: m });
+function registeredAt(m) {
+  const nik = String(m.nik || "").trim().toLowerCase(), nm = String(m.nama || "").trim().toLowerCase();
+  return uniq(state.karyawan
+    .filter(e => nik ? String(e.nik || "").trim().toLowerCase() === nik : String(e.nama || "").trim().toLowerCase() === nm)
+    .map(e => e.proses));
+}
+function personItems(by, markRegistered) {
+  return state.master.map(m => {
+    const at = markRegistered ? registeredAt(m) : [];
+    const sub = (by === "nik" ? m.nama : m.nik) + (m.jabatan ? " · " + m.jabatan : "") + (at.length ? " · sudah di " + at.join(", ") : "");
+    return { value: by === "nik" ? m.nik : m.nama, label: by === "nik" ? m.nik : m.nama, sub, data: m };
+  });
 }
 function jabatanItems() {
   return uniq(["LEADER", "OPERATOR"].concat(state.master.map(m => m.jabatan), state.karyawan.map(e => e.jabatan)))
@@ -1197,6 +1378,7 @@ async function load(showToast) {
     $("connTxt").title = (m.sheet ? "Spreadsheet: " + m.sheet + "\n" : "") + dataCounts(d) +
       (m.version ? "\nAPI: " + m.version : (GAS_URL ? "\nAPI versi lama (belum ada meta) — deploy ulang Code.gs" : ""));
     if (GAS_URL && !m.auth) showBanner("Code.gs belum mendukung login & approval per section. Tempel Code.gs terbaru lalu deploy ulang (Deploy → Manage deployments → Edit → New version).");
+    else if (GAS_URL && !m.users) showBanner("Code.gs belum mendukung kelola pengguna & ganti password. Tempel Code.gs terbaru lalu deploy ulang (Deploy → Manage deployments → Edit → New version).");
     buildSelects();
     render();
     if (showToast) toast("Data dimuat: " + dataCounts(d), "ok");
@@ -1688,14 +1870,13 @@ function openEmp(emp) {
   $("fFotoUrl").value = emp ? emp.foto || "" : "";
   $("fPrev").innerHTML = (emp && emp.foto) ? `<img src="${esc(emp.foto)}">` : "Foto";
   $("fFoto").value = "";
-  $("mdHint").textContent = state.master.length
-    ? "Ketik NIK atau nama untuk melihat saran dari sheet Master. Data di luar daftar tetap boleh diisi."
-    : "Ketik bebas. Saran dari sheet Master akan muncul setelah data Master termuat.";
+  $("mdHint").textContent = masterHint();
+  if (!state.master.length) loadMaster().then(() => { $("mdHint").textContent = masterHint(); });
   $("ovEmp").classList.add("show");
 }
 
-attachSuggest($("fNik"), () => personItems("nik"), (it) => fillFromMaster(it.data));
-attachSuggest($("fNama"), () => personItems("nama"), (it) => fillFromMaster(it.data));
+attachSuggest($("fNik"), () => personItems("nik", true), (it) => fillFromMaster(it.data));
+attachSuggest($("fNama"), () => personItems("nama", true), (it) => fillFromMaster(it.data));
 attachSuggest($("fJabatan"), jabatanItems, (it) => { $("fJabatan").value = it.value; });
 attachSuggest($("fSection"), sectionItems, (it) => { $("fSection").value = it.value; secDirty = true; });
 attachSuggest($("fKet"), ketItems, (it) => { $("fKet").value = it.value; });
@@ -1732,6 +1913,10 @@ $("btnSaveEmp").onclick = async () => {
     status: $("fStatus").value,
     ket: $("fKet").value.trim()
   };
+  if (!emp.id && emp.nik) {
+    const dup = state.karyawan.find(x => x.proses === kode && String(x.nik || "").trim() === emp.nik);
+    if (dup && !confirm("NIK " + emp.nik + " (" + dup.nama + ") sudah terdaftar di proses ini.\nTetap tambahkan sebagai data baru?")) return;
+  }
   try {
     toast("Menyimpan…");
     const res = await api("saveEmployee", { employee: emp });
@@ -1785,8 +1970,190 @@ function exportCsv() {
 $("btnPdf").onclick = () => { toast("Pilih Simpan sebagai PDF"); setTimeout(() => window.print(), 600); };
 $("btnCsv").onclick = exportCsv;
 $("btnPrint").onclick = () => window.print();
-$("btnReload").onclick = () => load(true);
+$("btnReload").onclick = () => load(true).then(() => loadMaster());
 $("btnAdd").onclick = () => requireLogin(() => openEmp(null));
+
+/* ============================================================== AKUN: PASSWORD & PENGGUNA */
+const PW_MIN = 6;
+const USERNAME_RE = /^[A-Za-z0-9_.@-]{3,40}$/;
+function pwToggle(btn) {
+  const i = $(btn.getAttribute("data-pwtoggle")), on = i.type === "password";
+  i.type = on ? "text" : "password";
+  btn.textContent = on ? "Sembunyikan" : "Tampilkan";
+}
+function resetPwToggles(ids) {
+  ids.forEach(id => {
+    $(id).type = "password";
+    const b = document.querySelector('[data-pwtoggle="' + id + '"]');
+    if (b) b.textContent = "Tampilkan";
+  });
+}
+function accErr(e) {
+  return /Action tidak dikenal/i.test(e.message)
+    ? "Code.gs di Apps Script belum versi terbaru. Tempel Code.gs terbaru lalu deploy ulang (Deploy → Manage deployments → Edit → New version)."
+    : e.message;
+}
+
+/* --- ganti password akun sendiri --- */
+function openPw() {
+  if (!isAuthed() || !GAS_URL) return;
+  const u = curUser();
+  $("pwWho").textContent = "Akun: " + u.username + (u.nama && u.nama !== u.username ? " (" + u.nama + ")" : "") +
+    ". Setelah password diganti, login di perangkat lain akan keluar otomatis.";
+  ["pwOld", "pwNew", "pwNew2"].forEach(id => { $(id).value = ""; });
+  resetPwToggles(["pwOld", "pwNew", "pwNew2"]);
+  $("pwErr").textContent = "";
+  $("ovPw").classList.add("show");
+  setTimeout(() => $("pwOld").focus(), 60);
+}
+async function doChangePw() {
+  const o = $("pwOld").value, n = $("pwNew").value, n2 = $("pwNew2").value;
+  const err = (m) => { $("pwErr").textContent = m; };
+  if (!o) return err("Isi password lama.");
+  if (n.length < PW_MIN) return err("Password baru minimal " + PW_MIN + " karakter.");
+  if (/^\s|\s$/.test(n)) return err("Password tidak boleh diawali atau diakhiri spasi.");
+  if (n !== n2) return err("Ulangi password baru: isinya belum sama.");
+  if (n === o) return err("Password baru harus berbeda dari password lama.");
+  const btn = $("btnDoPw");
+  btn.disabled = true; btn.textContent = "Menyimpan…"; err("");
+  try {
+    await api("changePassword", { oldPassword: o, newPassword: n });
+    $("ovPw").classList.remove("show");
+    toast("Password diganti.", "ok");
+  } catch (e) {
+    if (e.code === "AUTH") { $("ovPw").classList.remove("show"); return; }   // api() sudah menangani sesi berakhir
+    err(accErr(e));
+    $("pwOld").focus();
+  } finally { btn.disabled = false; btn.textContent = "Simpan password"; }
+}
+
+/* --- kelola pengguna (Admin) --- */
+let usersList = [], usEditing = null;
+function openUsers() {
+  if (!isAdmin() || !GAS_URL) return;
+  usReset();
+  $("ovUsers").classList.add("show");
+  loadUsers();
+}
+async function loadUsers() {
+  $("usList").innerHTML = '<div class="us-empty">Memuat daftar pengguna…</div>';
+  try {
+    const r = await api("listUsers");
+    usersList = (r.data && r.data.users) || [];
+    renderUsers();
+  } catch (e) {
+    if (e.code === "AUTH") { $("ovUsers").classList.remove("show"); return; }
+    usersList = [];
+    $("usList").innerHTML = '<div class="us-empty" style="color:var(--bad)">' + esc(accErr(e)) + '</div>';
+  }
+}
+function renderUsers() {
+  if (!usersList.length) { $("usList").innerHTML = '<div class="us-empty">Belum ada pengguna.</div>'; return; }
+  const me = String((curUser() || {}).username || "").toLowerCase();
+  const ed = String(usEditing || "").toLowerCase();
+  $("usList").innerHTML =
+    '<table class="us-tbl"><thead><tr><th>Username</th><th>Nama</th><th>Role</th><th>Status</th><th>Login terakhir</th><th></th></tr></thead><tbody>' +
+    usersList.map(u => {
+      const key = String(u.username).toLowerCase(), off = u.status !== "Aktif";
+      return '<tr class="' + (key === ed ? "on " : "") + (off ? "off" : "") + '">' +
+        '<td class="un">' + esc(u.username) + (key === me ? '<span class="us-tag">Anda</span>' : "") + '</td>' +
+        '<td>' + esc(u.nama) + '</td>' +
+        '<td>' + esc(u.role) + '</td>' +
+        '<td><span class="us-tag' + (off ? " off" : "") + '">' + esc(u.status) + '</span></td>' +
+        '<td>' + esc(fmtDate(u.terakhir)) + '</td>' +
+        '<td><button type="button" class="us-link" data-edit="' + esc(u.username) + '">Ubah</button></td></tr>';
+    }).join("") + '</tbody></table>';
+  $("usList").querySelectorAll("[data-edit]").forEach(b => { b.onclick = () => usEdit(b.getAttribute("data-edit")); });
+}
+function usEdit(name) {
+  const u = usersList.find(x => x.username === name);
+  if (!u) return;
+  const self = String(u.username).toLowerCase() === String((curUser() || {}).username || "").toLowerCase();
+  usEditing = u.username;
+  $("usFormTitle").textContent = "Ubah pengguna: " + u.username;
+  $("usName").value = u.username; $("usName").disabled = true;
+  $("usNama").value = u.nama;
+  $("usRole").value = u.role; $("usRole").disabled = self;
+  $("usStatus").value = u.status; $("usStatus").disabled = self;
+  $("usPass").value = ""; $("usPass").disabled = self;
+  resetPwToggles(["usPass"]);
+  $("usPwLabel").textContent = "Reset password";
+  $("usPwHint").textContent = self
+    ? "Untuk mengganti password akun Anda sendiri, pakai tombol Password di bar atas."
+    : "Kosongkan jika password tidak diubah. Jika diisi, password pengguna ini diganti dan login lamanya keluar otomatis.";
+  $("btnUsSave").textContent = "Simpan perubahan";
+  $("btnUsReset").style.display = "";
+  $("btnUsDel").style.display = self ? "none" : "";
+  $("usErr").textContent = "";
+  renderUsers();
+  $("usNama").focus();
+}
+function usReset() {
+  usEditing = null;
+  ["usName", "usNama", "usPass"].forEach(id => { $(id).value = ""; $(id).disabled = false; });
+  $("usRole").value = "Editor"; $("usRole").disabled = false;
+  $("usStatus").value = "Aktif"; $("usStatus").disabled = false;
+  resetPwToggles(["usPass"]);
+  $("usFormTitle").textContent = "Tambah pengguna";
+  $("usPwLabel").textContent = "Password";
+  $("usPwHint").textContent = "Minimal " + PW_MIN + " karakter. Sampaikan ke pengguna; mereka bisa menggantinya sendiri lewat tombol Password.";
+  $("btnUsSave").textContent = "Tambah pengguna";
+  $("btnUsReset").style.display = "none"; $("btnUsDel").style.display = "none";
+  $("usErr").textContent = "";
+  if (usersList.length) renderUsers();
+}
+async function usSave() {
+  const isNew = !usEditing;
+  const username = isNew ? $("usName").value.trim() : usEditing;
+  const nama = $("usNama").value.trim(), pass = $("usPass").value;
+  const err = (m) => { $("usErr").textContent = m; };
+  if (!USERNAME_RE.test(username)) return err("Username 3–40 karakter: huruf, angka, titik, garis bawah, strip atau @ (tanpa spasi).");
+  if (isNew && !pass) return err("Isi password awal untuk pengguna baru.");
+  if (pass && pass.length < PW_MIN) return err("Password minimal " + PW_MIN + " karakter.");
+  if (/^\s|\s$/.test(pass)) return err("Password tidak boleh diawali atau diakhiri spasi.");
+  const self = !isNew && username.toLowerCase() === String((curUser() || {}).username || "").toLowerCase();
+  const btn = $("btnUsSave");
+  btn.disabled = true; btn.textContent = "Menyimpan…"; err("");
+  try {
+    loginUsers = null;
+    const r = await api("saveUser", { isNew, username, nama: nama || username, role: $("usRole").value, status: $("usStatus").value, password: pass });
+    toast(isNew ? "Pengguna " + username + " ditambahkan."
+      : (r.data && r.data.passwordReset ? "Perubahan disimpan. Password " + username + " direset." : "Perubahan disimpan."), "ok");
+    usReset();
+    await loadUsers();
+    if (self) verifySession();                       // segarkan nama yang tampil di bar atas
+  } catch (e) {
+    if (e.code === "AUTH") { $("ovUsers").classList.remove("show"); return; }
+    err(accErr(e));
+  } finally { btn.disabled = false; btn.textContent = usEditing ? "Simpan perubahan" : "Tambah pengguna"; }
+}
+async function usDelete() {
+  if (!usEditing) return;
+  const name = usEditing;
+  if (!confirm('Hapus pengguna "' + name + '"? Pengguna ini tidak bisa login lagi.\nUntuk menutup akses sementara, ubah Status menjadi Non Aktif.')) return;
+  const btn = $("btnUsDel");
+  btn.disabled = true;
+  try {
+    loginUsers = null;
+    await api("deleteUser", { username: name });
+    toast("Pengguna " + name + " dihapus.", "ok");
+    usReset();
+    await loadUsers();
+  } catch (e) {
+    if (e.code === "AUTH") { $("ovUsers").classList.remove("show"); return; }
+    $("usErr").textContent = accErr(e);
+  } finally { btn.disabled = false; }
+}
+$("btnPw").onclick = openPw;
+$("btnUsers").onclick = openUsers;
+$("btnDoPw").onclick = doChangePw;
+$("btnUsSave").onclick = usSave;
+$("btnUsReset").onclick = usReset;
+$("btnUsDel").onclick = usDelete;
+document.querySelectorAll("[data-pwtoggle]").forEach(b => { b.onclick = () => pwToggle(b); });
+["pwOld", "pwNew", "pwNew2"].forEach(id => $(id).addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); doChangePw(); } }));
+["usName", "usNama", "usPass"].forEach(id => $(id).addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); usSave(); } }));
+["ovPw", "ovUsers"].forEach(id => $(id).addEventListener("click", (e) => { if (e.target.id === id) $(id).classList.remove("show"); }));
 
 /* --------------------------------------------------------------------- events */
 $("selProses").addEventListener("change", (e) => { state.kode = e.target.value; buildSelects(); render(); });
@@ -1802,7 +2169,8 @@ $("chkEdit").addEventListener("change", (e) => {
 $("btnLogin").onclick = () => openLogin();
 $("btnLogout").onclick = doLogout;
 $("btnDoLogin").onclick = doLogin;
-["lgUser", "lgPass"].forEach(id => $(id).addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); doLogin(); } }));
+$("lgUser").addEventListener("change", () => { if ($("lgUser").value) $("lgPass").focus(); });   // pilih pengguna -> langsung ketik password
+$("lgPass").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); doLogin(); } });
 $("lgShow").onclick = () => {
   const i = $("lgPass"), on = i.type === "password";
   i.type = on ? "text" : "password";
@@ -1814,7 +2182,7 @@ document.querySelectorAll("[data-close]").forEach(b => {
 $("ovEmp").addEventListener("click", (e) => { if (e.target.id === "ovEmp") $("ovEmp").classList.remove("show"); });
 $("ovLogin").addEventListener("click", (e) => { if (e.target.id === "ovLogin") closeLogin(); });
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") { $("ovEmp").classList.remove("show"); if ($("ovLogin").classList.contains("show")) closeLogin(); }
+  if (e.key === "Escape") { $("ovEmp").classList.remove("show"); $("ovPw").classList.remove("show"); $("ovUsers").classList.remove("show"); if ($("ovLogin").classList.contains("show")) closeLogin(); }
 });
 
 /* ----------------------------------------------------------------------- start */
@@ -1831,7 +2199,7 @@ try {   /* logo dipakai di setiap lembar: ubah ke blob URL agar tidak menggandak
   applyAuthUI();
   buildSelects();
   render();
-  load(false).then(verifySession);
+  load(false).then(verifySession).then(() => { if (!isAuthed()) loadLoginUsers(false); });
 })();
 
 </script>
